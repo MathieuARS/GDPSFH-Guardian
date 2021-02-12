@@ -1,4 +1,4 @@
-# GDPS-Free-Hosting_Guardian
+# GDPS Free Hosting Guardian Bot
 Just the bot that responds to questions, posted it here because some people wanted the code
 
 This bot will not directly work with your server, you have to modify the code yourself.
