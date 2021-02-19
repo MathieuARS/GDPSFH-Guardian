@@ -8,6 +8,7 @@ client = commands.Bot(command_prefix = prefix, help_command=None)
 txt = open("bot_token.txt", "r")
 bot_token = txt.readline()
 
+owner_id = 195598321501470720
 suggestions_channels = [745331693396820090, # suggestions
                         797968735632752660, # stats-bot-suggestion
                         793552899983540254, # manager-suggestion
@@ -16,12 +17,12 @@ suggestions_channels = [745331693396820090, # suggestions
 
 @client.event
 async def on_message(message):
+    ping_owner_message = False
     yesemoji = "<:yes:809571059941769247>"
     noemoji = "<:no:809571073531183144>"
     maybeemoji = "<:maybe:809572355533701131>"
     wrongchannelerror = "You are asking for help in the wrong channel. Go to <#743037416947974165>"
     help_channel = 743037416947974165
-    owner_id = 195598321501470720
     bot_id_list = [798512290222833664, 765571424903233577]
 
     pingmsglist = ["https://tenor.com/view/pinged-sargent-who-pinged-me-gif-15913755",
@@ -48,6 +49,11 @@ async def on_message(message):
     # Ping messages
     elif "765571424903233577" in message.content:
         await message.channel.send("".join([pingmsglist[random.randrange(0, len(pingmsglist))] for i in range(1)]))
+    elif str(owner_id) in message.content:
+        if ping_owner_message is True:
+            await message.channel.send("I hope you had a good reason to ping the owner..")
+        else:
+            pass
     # !c in non verified chat message
     elif "!c" in message.content:
         if message.channel.id == 803605671580270623: # non-verified-chat id
@@ -135,7 +141,7 @@ async def on_raw_reaction_add(payload):
     maybe = discord.Embed(title="Suggestion may be accepted.", description = "<@" + authorid + ">", color = discord.Colour.from_rgb(255, 128, 0))
 
     if payload.channel_id in suggestions_channels:
-        if payload.user_id == 195598321501470720:
+        if payload.user_id == owner_id:
             if payload.emoji == yesemoji:
                 accepted.add_field(name = "Suggestion:", value = suggestion_content, inline = True)
                 await channel.send(embed=accepted)
