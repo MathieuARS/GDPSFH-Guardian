@@ -1,11 +1,18 @@
+import random
 import discord
 from discord.ext import commands
-import random
+from discord.utils import get
 
 prefix = "this_is_useless_dont_touch_that"
 client = commands.Bot(command_prefix = prefix, help_command=None)
 txt = open("bot_token.txt", "r")
 bot_token = txt.readline()
+
+suggestions_channels = [745331693396820090, # suggestions
+                        797968735632752660, # stats-bot-suggestion
+                        793552899983540254, # manager-suggestion
+                        803693527917658122, # giveaway-suggestion
+                        751105161191096340] # faq-suggestion
 
 @client.event
 async def on_message(message):
@@ -15,6 +22,7 @@ async def on_message(message):
     wrongchannelerror = "You are asking for help in the wrong channel. Go to <#743037416947974165>"
     help_channel = 743037416947974165
     owner_id = 195598321501470720
+    bot_id_list = [798512290222833664, 765571424903233577]
 
     pingmsglist = ["https://tenor.com/view/pinged-sargent-who-pinged-me-gif-15913755",
                   "https://tenor.com/view/ping-slap-dog-doggo-punch-gif-17672413",
@@ -30,20 +38,16 @@ async def on_message(message):
                   "<:ping:746467200453574799>"]
 
     # Suggestions channels reactions
-    if (message.channel.id == 745331693396820090 or # suggestions
-        message.channel.id == 797968735632752660 or # stats-bot-suggestion
-        message.channel.id == 793552899983540254 or # manager-suggestion
-        message.channel.id == 803693527917658122 or # giveaway-suggestion
-        message.channel.id == 751105161191096340): # faq-suggestion
-        await message.add_reaction(yesemoji)
-        await message.add_reaction(noemoji)
-        await message.add_reaction(maybeemoji)
+    if message.channel.id in suggestions_channels:
+        if message.author.id == owner_id or message.author.id in bot_id_list:
+            pass
+        else:
+            await message.add_reaction(yesemoji)
+            await message.add_reaction(noemoji)
+            await message.add_reaction(maybeemoji)
     # Ping messages
     elif "765571424903233577" in message.content:
         await message.channel.send("".join([pingmsglist[random.randrange(0, len(pingmsglist))] for i in range(1)]))
-    # Ping mathieu message
-    elif str(owner_id) in message.content:
-        await message.channel.send("I hope you had a good reason to ping the owner..")
     # !c in non verified chat message
     elif "!c" in message.content:
         if message.channel.id == 803605671580270623: # non-verified-chat id
@@ -115,6 +119,21 @@ async def on_message(message):
          "forgot my account password" in message.content):
         if message.channel.id == help_channel:
             await message.channel.send("If you lost your password login in your database then go in the accounts table, look for your account and replace whats in password by **$2y$10$NcGFx6QGceNBdWWigg9A2.z9NfY5czyhEb0y0GijRurPI7rv71Liu**\n\nThis will change your password to 123456 but be sure to change it again in your gdps tools.")
+
+@client.event
+async def on_raw_reaction_add(payload):
+    channel = await client.fetch_channel(payload.channel_id)
+    msg = await client.get_channel(payload.channel_id).fetch_message(payload.message_id)
+    authorid = msg.author.id
+    yesemoji = client.get_emoji(809571059941769247)
+    noemoji = client.get_emoji(809571073531183144)
+
+    if payload.channel_id in suggestions_channels:
+        if payload.user_id == 195598321501470720:
+            if payload.emoji == yesemoji:
+                await channel.send("<@" + str(authorid) + ">, Your suggestion was approved!")
+            elif payload.emoji == noemoji:
+                await channel.send("<@" + str(authorid) + ">, Your suggestion was denied.")
 
 @client.event
 async def on_ready():
