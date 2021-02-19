@@ -124,16 +124,27 @@ async def on_message(message):
 async def on_raw_reaction_add(payload):
     channel = await client.fetch_channel(payload.channel_id)
     msg = await client.get_channel(payload.channel_id).fetch_message(payload.message_id)
-    authorid = msg.author.id
+    authorid = str(msg.author.id)
+    suggestion_content = msg.content
     yesemoji = client.get_emoji(809571059941769247)
     noemoji = client.get_emoji(809571073531183144)
+    maybeemoji = client.get_emoji(809572355533701131)
+
+    accepted = discord.Embed(title="Suggestion accepted!", description = "<@" + authorid + ">", color = discord.Colour.green())
+    denied = discord.Embed(title="Suggestion denied.", description = "<@" + authorid + ">", color = discord.Colour.red())
+    maybe = discord.Embed(title="Suggestion may be accepted.", description = "<@" + authorid + ">", color = discord.Colour.from_rgb(255, 128, 0))
 
     if payload.channel_id in suggestions_channels:
         if payload.user_id == 195598321501470720:
             if payload.emoji == yesemoji:
-                await channel.send("<@" + str(authorid) + ">, Your suggestion was approved!")
+                accepted.add_field(name = "Suggestion:", value = suggestion_content, inline = True)
+                await channel.send(embed=accepted)
             elif payload.emoji == noemoji:
-                await channel.send("<@" + str(authorid) + ">, Your suggestion was denied.")
+                denied.add_field(name = "Suggestion:", value = suggestion_content, inline = True)
+                await channel.send(embed=denied)
+            elif payload.emoji == maybeemoji:
+                maybe.add_field(name = "Suggestion:", value = suggestion_content, inline = True)
+                await channel.send(embed=maybe)
 
 @client.event
 async def on_ready():
